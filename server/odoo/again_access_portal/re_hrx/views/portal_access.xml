@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_employee_form" model="ir.ui.view">
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='hr_settings']//field[@name='user_id']" position="after">
+                <field name="mobile_access"/>
+            </xpath>
+        </field>
+    </record>
+
+
+    <record id="view_employee_tree" model="ir.ui.view">
+        <field name="name">hr.employee.tree.invitation</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.view_employee_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='parent_id']" position="after">
+                 <button name="send_invitation_mail" string="Send Invitation Mail" type="object"/>
+            </xpath>
+        </field>
+    </record>
+
+
+</odoo>
+ 
+  
+   

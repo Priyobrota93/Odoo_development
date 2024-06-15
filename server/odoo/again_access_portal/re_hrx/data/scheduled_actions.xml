@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="ir_cron_copy_mobile_access_employees" model="ir.cron">
+            <field name="name">Copy Mobile Access Employees</field>
+            <field name="model_id" ref="model_hrx_re_portal_access"/>
+            <field name="state">code</field>
+            <field name="code">model.copy_mobile_access_employees()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="numbercall">-1</field>
+            <!-- <field name="doall">False</field> -->
+        </record>
+    </data>
+</odoo>

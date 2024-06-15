@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="action_open_view_employee_list_my" model="ir.actions.act_window">
+            <field name="name">Mobile Employees</field>
+            <field name="res_model">hr.employee</field>
+            <field name="view_mode">tree,form</field>
+            <field name="domain">[('mobile_access', '=', True)]</field>
+    </record>
+    
+    <menuitem id="menu_portal_access" 
+              name="Mobile Portal" 
+              action="action_open_view_employee_list_my" 
+              parent="hr.menu_hr_employee_payroll" 
+              sequence="10"/>
+
+ 
+</odoo>
+
+

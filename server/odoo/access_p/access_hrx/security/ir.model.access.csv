@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_hr_test_portal_access,Access HR Test Portal Access,model_hr_test_portal_access,base.group_user,1,1,1,1
+
+access_hrx.access_hr_test_portal_access,access_hr_test_portal_access,access_hrx.model_hr_test_portal_access,base.group_user,1,1,1,1

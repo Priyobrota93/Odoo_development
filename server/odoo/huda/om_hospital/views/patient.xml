@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="action_hospital_patient" model="ir.actions.act_window">
+        <field name="name">Patients</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">hospital.patient</field>
+        <field name="view_mode">tree,form</field>
+        <field name = "search_view_id" ref="om_hospital.view_hospital_patient_search"/>
+    </record>
+
+    <menuitem id="menu_patients" name="Patients" parent="menu_hospital_operations" action="action_hospital_patient"
+        sequence ="10" />
+
+f
+    <record id="view_hospital_patient_form" model="ir.ui.view">
+        <field name="name">hospital.patient.form</field>
+        <field name="model">hospital.patient</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                         <field name="ref" readonly="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <field name ="name"/>
+                        <field name = "is_child"/>
+                        <field name ="age"/>
+                        <field name = "doctor_id"/>
+                        <field name = "capitalized_name"/>
+
+                    </group>
+                </sheet>
+                <div class="oe_chatter">
+                <field name="message_follower_ids"/>
+                <field name="message_ids" options = "{'post_refresh': 'recipients'}"/>
+                
+                </div>
+
+            </form>
+        </field>
+    </record>
+
+    <record id="view_hospital_patient_tree" model="ir.ui.view">
+        <field name="name">hospital.patient.tree</field>
+        <field name="model">hospital.patient</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name ="ref"/>
+                <field name ="name"/>
+                <field name = "capitalized_name"/>
+                <field name ="age"/>
+                <field name ="gender"/>
+                <field name = "is_child"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_hospital_patient_search" model="ir.ui.view">
+        <field name="name">hospital.patient.search</field>
+        <field name="model">hospital.patient</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name ="name" filter_domain ="['|',('name','ilike', self),('ref','ilike', self)]"/>
+                <field name ="age"/>
+                <field name ="gender"/>
+
+                <filter name ="filter_male" string = "Male" domain="[('gender', '=', 'male')]"/>
+                <filter name ="filter_female" string = "Female" domain="[('gender', '=', 'female')]"/>
+                <filter name ="filter_others" string = "Others" domain="[('gender', '=', 'others')]"/>
+
+                <separator/>
+                <filter name ="filter_childs" string = "Childs" domain="[('is_child', '=', True)]"/>
+                
+                <group expand ="0" string ="Group By...">
+                <filter name ="group_by_gender" string = "Gender" context ="{'group_by':'gender'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+
+
+</odoo>

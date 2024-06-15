@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_hrx_re_portal_access,access_hrx_re_portal_access,model_hrx_re_portal_access,base.group_user,1,1,1,1
+
+access_portal_access_relation,access_portal_access_relation,model_hrx_re_portal_access,base.group_user,1,1,1,1
