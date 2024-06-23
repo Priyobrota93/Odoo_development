@@ -4,8 +4,6 @@ class TestPortalRelation(models.Model):
     _name = "hr_test_portal_access"
     _description = "Portal Access Test"
 
-
-
     employee_id = fields.Many2one('hr.employee', string='Employee', ondelete='cascade', required=True)
     department_id = fields.Many2one('hr.department', string='Department')
     job_id = fields.Many2one('hr.job', string='Job Position')

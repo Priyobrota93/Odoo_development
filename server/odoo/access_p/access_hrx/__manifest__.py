@@ -6,6 +6,7 @@
     'data': [
         'views/test_menu.xml',
         'views/test_portal.xml',
+        'views/test_input_form_view.xml',
         'security/ir.model.access.csv',
         'data/scheduled_actions.xml'
     ],

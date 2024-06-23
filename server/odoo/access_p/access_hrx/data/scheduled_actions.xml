@@ -10,5 +10,40 @@
         <field name="interval_type">minutes</field>
         <field name="numbercall">-1</field>
     </record>
+
+    <record id="action_integrate_mobile_access" model="ir.cron">
+        <field name="name">Integrate Mobile Access Data</field>
+        <field name="model_id" ref="hr.model_hr_employee"/>
+        <field name="state">code</field>
+        <field name="code">model.integrate_mobile_access()</field>
+        <field name="active">True</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">minutes</field>
+        <field name="numbercall">-1</field>
+    </record>
+
+    <record id="action_integrate_mobile_access_attendance" model="ir.cron">
+        <field name="name">Integrate Mobile Access Attendance Data</field>
+        <field name="model_id" ref="hr.model_hr_employee"/>
+        <field name="state">code</field>
+        <field name="code">model.integrate_mobile_access_attendance()</field>
+        <field name="active">True</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">minutes</field>
+        <field name="numbercall">-1</field>
+    </record>
+
+    <!-- <record id="action_integrate_hr_leave_data" model="ir.cron">
+        <field name="name">Integrate Mobile Access Attendance Data</field>
+        <field name="model_id" ref="hr.model_hr_employee"/>
+        <field name="state">code</field>
+        <field name="code">model.integrate_hr_leave_data()</field>
+        <field name="active">True</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">minutes</field>
+        <field name="numbercall">-1</field>
+    </record> -->
+
+
 </odoo>
 
