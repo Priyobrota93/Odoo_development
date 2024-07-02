@@ -4,9 +4,7 @@
         <field name="name">Input Credentials Form</field>
         <field name="res_model">hr_mobile_access_input</field>
         <field name="view_mode">form</field>
-        <!-- <field name="view_id" ref="view_test_input_form"/> -->
-        <!-- <field name="target">new</field> -->
-    </record>   
+    </record>
 
     <record id="action_open_view_employee_list_my" model="ir.actions.act_window">
         <field name="name">Mobile Employees</field>
@@ -15,9 +13,13 @@
         <field name="domain">[('mobile_access', '=', True)]</field>
     </record>
 
+   
+
     <menuitem id="menu_portal_access" name="Mobile Portal" action="action_open_view_employee_list_my" parent="hr.menu_hr_employee_payroll" sequence="10"/>
 
     <menuitem id="menu_config_mobile_access" name="Mobile Access" parent="hr.menu_human_resources_configuration" sequence="10"/>
 
     <menuitem id="menu_input_data" action="action_open_form" parent="menu_config_mobile_access" name="Input Credentials" sequence="10"/>
+    
 </odoo>
+ 

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <record id="action_transfer_mobile_access_employees" model="ir.cron">
+    <!-- <record id="action_transfer_mobile_access_employees" model="ir.cron">
         <field name="name">Transfer Mobile Access Employees</field>
         <field name="model_id" ref="hr.model_hr_employee"/>
         <field name="state">code</field>
@@ -9,7 +9,7 @@
         <field name="interval_number">1</field>
         <field name="interval_type">minutes</field>
         <field name="numbercall">-1</field>
-    </record>
+    </record> -->
 
     <record id="action_integrate_mobile_access" model="ir.cron">
         <field name="name">Integrate Mobile Access Data</field>
@@ -22,7 +22,7 @@
         <field name="numbercall">-1</field>
     </record>
 
-    <record id="action_integrate_mobile_access_attendance" model="ir.cron">
+    <!-- <record id="action_integrate_mobile_access_attendance" model="ir.cron">
         <field name="name">Integrate Mobile Access Attendance Data</field>
         <field name="model_id" ref="hr.model_hr_employee"/>
         <field name="state">code</field>
@@ -31,7 +31,7 @@
         <field name="interval_number">1</field>
         <field name="interval_type">minutes</field>
         <field name="numbercall">-1</field>
-    </record>
+    </record> -->
 
     <!-- <record id="action_integrate_hr_leave_data" model="ir.cron">
         <field name="name">Integrate Mobile Access Attendance Data</field>
@@ -44,6 +44,38 @@
         <field name="numbercall">-1</field>
     </record> -->
 
+    <record id="action_transfer_mobile_attendance_data" model="ir.cron">
+        <field name="name">Transfer Mobile Attendance Data</field>
+        <field name="model_id" ref="hr_attendance.model_hr_attendance"/>
+        <field name="state">code</field>
+        <field name="code">model.transfer_mobile_attendance_data()</field>
+        <field name="active">True</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">minutes</field>
+        <field name="numbercall">-1</field>
+    </record>
 
+    <record id="action_transfer_mobile_attendance_request" model="ir.cron">
+        <field name="name">Transfer Mobile Attendance Requests</field>
+        <field name="model_id" ref="hr_attendance.model_hr_attendance"/>
+        <field name="state">code</field>
+        <field name="code">model.transfer_mobile_attendance_request()</field>
+        <field name="active" eval="True"/>
+        <field name="interval_number">1</field>
+        <field name="interval_type">minutes</field>
+        <field name="numbercall">-1</field>
+    </record>
+
+    <record id="action_update_attendance_status" model="ir.cron">
+        <field name="name">Update PostgreSQL Status</field>
+        <field name="model_id" ref="hr_attendance.model_hr_attendance"/>
+        <field name="state">code</field>
+        <field name="code">model.update_attendance_status()</field>
+        <field name="active" eval="True"/>
+        <field name="interval_number">1</field>
+        <field name="interval_type">minutes</field>
+        <field name="numbercall">-1</field>
+    </record>
 </odoo>
+
 
