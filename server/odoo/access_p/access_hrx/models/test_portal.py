@@ -30,6 +30,118 @@ class TestPortalAccess(models.Model):
     #             'write_date': employee.write_date,
     #         })
 
+    # @api.model
+    # def integrate_mobile_access(self):
+    #     pg_access = self.env['hr_mobile_access_input'].search([], order='id desc', limit=1)
+    #     print("PostgreSQL Access Data: ", pg_access)
+    #     if not pg_access:
+    #         print("No PostgreSQL access details found.")
+    #         return
+
+    #     PG_HOST = pg_access.pg_db_host
+    #     PG_DB = pg_access.pg_db_name
+    #     PG_USER = pg_access.pg_db_user
+    #     PG_PASSWORD = pg_access.pg_db_password
+
+    #     conn = None
+    #     cursor = None
+    #     try:
+    #         conn = psycopg2.connect(
+    #             host=PG_HOST,
+    #             database=PG_DB,
+    #             user=PG_USER,
+    #             password=PG_PASSWORD
+    #         )
+    #         conn.autocommit = True
+    #         cursor = conn.cursor()
+
+    #         NEW_TABLE = 'hrx_employee'
+
+    #         create_table_query = f"""
+    #         CREATE TABLE IF NOT EXISTS {NEW_TABLE} (
+    #             id SERIAL PRIMARY KEY,
+    #             employee_id INTEGER UNIQUE,
+    #             name VARCHAR(255),
+    #             work_phone VARCHAR(50),
+    #             work_email VARCHAR(255),
+    #             job_title VARCHAR(255),
+    #             create_date TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    #             write_date TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    #             password VARCHAR(255)
+    #         )
+    #         """
+    #         cursor.execute(create_table_query)
+    #         print(f"Table {NEW_TABLE} created or verified successfully.")
+
+    #         employees = self.search([('mobile_access', '=', True)])
+    #         if not employees:
+    #             print("No employees found with mobile access.")
+    #         else:
+    #             print(f"Found {len(employees)} employees with mobile access.")
+
+    #         for employee in employees:
+    #             cursor.execute("""
+    #                 SELECT 1 FROM hrx_employee WHERE employee_id = %s
+    #             """, (employee.id,))
+    #             if cursor.fetchone():
+    #                 # Update existing record if employee_id exists
+    #                 update_query = """
+    #                     UPDATE hrx_employee
+    #                     SET name = %s,
+    #                         work_phone = %s,
+    #                         work_email = %s,
+    #                         job_title = %s,
+    #                         write_date = %s,
+    #                         password = %s
+    #                     WHERE employee_id = %s
+    #                 """
+    #                password = employee.password if hasattr(employee, 'password') else None
+    #                 cursor.execute(update_query, (
+    #                     employee.name,
+    #                     employee.work_phone,
+    #                     employee.work_email,
+    #                     employee.job_title,
+    #                     employee.write_date,
+    #                     employee.password,
+    #                     employee.id,
+    #                 ))
+    #                 print(f"Updated employee_id {employee.id} successfully.")
+    #             else:
+    #                 # Insert new record if employee_id does not exist
+    #                 insert_query = """
+    #                     INSERT INTO hrx_employee (
+    #                         employee_id, name,
+    #                         work_phone, work_email, job_title, create_date, write_date, password
+    #                     ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+    #                 """
+    #                 password = employee.password if hasattr(employee, 'password') else None 
+    #                 cursor.execute(insert_query, (
+    #                     employee.id,
+    #                     employee.name,
+    #                     employee.work_phone,
+    #                     employee.work_email,
+    #                     employee.job_title,
+    #                     employee.create_date,
+    #                     employee.write_date,
+    #                     employee.password,
+    #                 ))
+    #                 print(f"Inserted employee_id {employee.id} successfully.")
+
+    #         print("Integration of mobile access data completed successfully.")
+
+    #     except psycopg2.Error as e:
+    #         print(f"Error: {e}")
+    #     finally:
+    #         if cursor:
+    #             cursor.close()
+    #         if conn:
+    #             conn.close()
+    #             print("PostgreSQL connection closed.")
+
+
+
+
+
 
 
 
@@ -60,17 +172,16 @@ class TestPortalAccess(models.Model):
             conn.autocommit = True
             cursor = conn.cursor()
 
-            NEW_TABLE = 'integrated_mobile_data'
+            NEW_TABLE = 'hrx_employee'
 
             create_table_query = f"""
             CREATE TABLE IF NOT EXISTS {NEW_TABLE} (
                 id SERIAL PRIMARY KEY,
                 employee_id INTEGER UNIQUE,
                 name VARCHAR(255),
-                department_id INTEGER,
-                job_id INTEGER,
                 work_phone VARCHAR(50),
                 work_email VARCHAR(255),
+                job_title VARCHAR(255),
                 create_date TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
                 write_date TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
                 password VARCHAR(255)
@@ -87,7 +198,7 @@ class TestPortalAccess(models.Model):
 
             for employee in employees:
                 cursor.execute("""
-                    SELECT 1 FROM integrated_mobile_data WHERE employee_id = %s
+                    SELECT 1 FROM hrx_employee WHERE employee_id = %s
                 """, (employee.id,))
                 if cursor.fetchone():
                     print(f"Record with employee_id {employee.id} already exists. Skipping.")
@@ -96,17 +207,16 @@ class TestPortalAccess(models.Model):
                 password = employee.password if hasattr(employee, 'password') else None
 
                 cursor.execute("""
-                    INSERT INTO integrated_mobile_data (
-                        employee_id, department_id, job_id, name,
-                        work_phone, work_email, create_date, write_date, password
-                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    INSERT INTO hrx_employee (
+                        employee_id, name,
+                        work_phone, work_email, job_title, create_date, write_date, password
+                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
                 """, (
                     employee.id,
-                    employee.department_id.id if employee.department_id else None,
-                    employee.job_id.id if employee.job_id else None,
                     employee.name,
                     employee.work_phone,
                     employee.work_email,
+                    employee.job_title,
                     employee.create_date,
                     employee.write_date,
                     employee.password,

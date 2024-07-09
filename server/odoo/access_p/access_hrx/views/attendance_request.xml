@@ -1,26 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-      <record id="view_hr_attendance_tree_inherit_request" model="ir.ui.view">
-        <field name="name">hr.attendance.tree.inherit.request</field>
-        <field name="model">hr.attendance</field>
-        <field name="inherit_id" ref="hr_attendance.view_attendance_tree"/>
-        <field name="arch" type="xml">
-            <xpath expr="//field[@name='check_out']" position="after">
-                <field name="status"/>
-            </xpath>
-        </field>
+    <!-- <data>
+        <record id="view_hr_attendance_tree_inherit_request" model="ir.ui.view">
+            <field name="name">hr.attendance.tree</field>
+            <field name="model">hr.attendance</field>
+            <field name="inherit_id" ref="hr_attendance.view_attendance_tree"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='check_out']" position="after">
+                    <field name="status"/>
+                </xpath>
+            </field>
+        </record>
+    </data> -->
+    
+
+
+<record id="action_hr_attendance_request_view" model="ir.actions.act_window">
+        <field name="name">Attendance Requests</field>
+        <field name="res_model">hr.attendance.request</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="access_hrx.view_hr_attendance_request_tree"/>
+        <field name="domain">[('attn_req_id', '!=', False)]</field>
     </record>
 
 
 
+    <menuitem id="menu_hr_attendance_view_request" name="Attendance Requests" parent="hr_attendance.menu_hr_attendance_root" sequence="5" action="action_hr_attendance_request_view"/>
+
     
-    <record id="action_hr_request_view" model="ir.actions.act_window">
+    <!-- <record id="action_hr_request_view" model="ir.actions.act_window">
         <field name="name">Attendance Request</field>
         <field name="res_model">hr.attendance</field>
         <field name="view_mode">tree,form</field>
-        <field name="domain">[('attn_req_id', '!=', False)]</field>
-        <field name="view_id" ref="view_hr_attendance_tree_inherit_request"/>
-    </record>
+        <field name="view_id" ref="access_hrx.view_hr_attendance_tree_inherit_request"/>
+       <field name="domain">[('attn_req_id', '!=', False)]</field>
+    </record> -->
 
-    <menuitem id="menu_hr_attendance_view_request" name="Attendance Request" parent="hr_attendance.menu_hr_attendance_root" sequence="5" action="action_hr_request_view"/>
+    <!-- <menuitem id="menu_hr_attendance_view_request" name="Attendance Request" parent="hr_attendance.menu_hr_attendance_root" sequence="5" action="action_hr_request_view"/> -->
 </odoo>

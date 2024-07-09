@@ -14,3 +14,13 @@ class TestPortalRelation(models.Model):
     create_date = fields.Datetime(string='Created on')
     write_date = fields.Datetime(string='Last Updated on')
     password = fields.Char(string='Password')
+
+
+
+
+
+
+
+
+
+

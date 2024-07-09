@@ -7,8 +7,9 @@
         'views/test_menu.xml',
         'views/test_portal.xml',
         'views/test_input_form_view.xml',
-        'views/attendance_request_access.xml',
-        'views/attemdance_request.xml',
+        # 'views/attendance_request_access.xml',
+        'views/attendance_request_view.xml',
+        'views/attendance_request.xml',
         'security/ir.model.access.csv',
         'data/scheduled_actions.xml'
     ],
