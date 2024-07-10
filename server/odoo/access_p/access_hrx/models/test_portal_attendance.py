@@ -50,7 +50,7 @@ class HrAttendance(models.Model):
                 attn_id = record[11]
 
                 existing_attendance_id = self.search([
-                    ('attn_id', '=', attn_id),
+                    ('attn_id', '=', attn_id and 'in_latitude', '=', '0.0000000' and 'out_latitude', '=',  '0.0000000'and 'in_longitude', '=', '0.0000000' and 'out_longitude', '=', '0.0000000')
                 ])
 
                 if existing_attendance_id:
@@ -71,6 +71,7 @@ class HrAttendance(models.Model):
                         'attn_id': attn_id,
                     })
                     print(f"Inserted attendance record id {id} successfully.")
+                    
                 except ValidationError as e:
                     print(f"Failed to insert record id {id}: {e}")
 
