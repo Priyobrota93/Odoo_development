@@ -2,7 +2,7 @@
     'name': 'Access_HRx',
     'author': 'CLAREx',
     'license': 'LGPL-3',
-    'depends': ['hr','hr_attendance','base'],
+    'depends': ['hr','hr_attendance','base','hr_expense'],
     'data': [
         'views/test_menu.xml',
         'views/test_portal.xml',
