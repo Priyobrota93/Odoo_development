@@ -1,6 +1,7 @@
 from odoo import models, fields, api
 from odoo.exceptions import ValidationError
 import psycopg2
+from .pg_connection import get_pg_access, get_pg_connection
 
 class HrExpense(models.Model):
     _inherit = 'hr.expense'
@@ -11,26 +12,18 @@ class HrExpense(models.Model):
 
     @api.model
     def transfer_expense_data_from_postgres(self):
-        pg_access = self.env['hr_mobile_access_input'].search([], order='id desc', limit=1)
+        pg_access = get_pg_access(self.env)
         if not pg_access:
-            print("No PostgreSQL access details found.")
+            print("Failed to get PostgreSQL access.")
             return
 
-        PG_HOST = pg_access.pg_db_host
-        PG_DB = pg_access.pg_db_name
-        PG_USER = pg_access.pg_db_user
-        PG_PASSWORD = pg_access.pg_db_password
+        conn = get_pg_connection(pg_access)
+        if not conn:
+            print("Failed to connect to PostgreSQL.")
+            return
 
-        conn = None
-        cursor = None
+        cursor = conn.cursor()
         try:
-            conn = psycopg2.connect(
-                host=PG_HOST,
-                database=PG_DB,
-                user=PG_USER,
-                password=PG_PASSWORD
-            )
-            cursor = conn.cursor()
             query = "SELECT * FROM hrx_expense"
             cursor.execute(query)
             records = cursor.fetchall()
@@ -67,7 +60,7 @@ class HrExpense(models.Model):
                 if not expense_sheet:
                     print(f"Expense sheet with ID {sheet_id} not found. Creating a new one.")
                     expense_sheet = self.env['hr.expense.sheet'].create({
-                        'name': f"Sheet for expense {name}",
+                        'name': f"{name}",
                         'employee_id': employee.id,
                         'state': 'draft',
                     })
@@ -105,6 +98,54 @@ class HrExpense(models.Model):
             if conn:
                 conn.close()
                 print("PostgreSQL connection closed.")
+
+
+    @api.model
+    def update_expense(self):
+        pg_access = get_pg_access(self.env)
+        if not pg_access:
+            print("Failed to get PostgreSQL access.")
+            return
+
+        conn = get_pg_connection(pg_access)
+        if not conn:
+            print("Failed to connect to PostgreSQL.")
+            return
+
+        cursor = conn.cursor()
+        try:
+             
+            conn.autocommit = True
+             
+            expenses = self.search([])
+            for expense in expenses:
+                cursor.execute("""
+                    UPDATE hrx_expense
+                    SET state = %s, name = %s, payment_mode = %s, accounting_date = %s
+                    WHERE create_date = %s AND employee_id = %s
+                """, (
+                    expense.state,
+                    'Priyo',
+                    expense.payment_mode,
+                    expense.accounting_date,
+                    expense.create_date,
+                    expense.employee_id.id
+                ))
+                print(f"Updated hrx_expense for external_id {expense.external_id}.")
+
+
+            print("Status update completed successfully.")
+
+        except psycopg2.Error as e:
+            print(f"PostgreSQL error: {e}")
+
+        finally:
+            if cursor:
+                cursor.close()
+            if conn:
+                conn.close()
+                print("PostgreSQL connection closed.")
+
 
 
 # from odoo import models, fields, api

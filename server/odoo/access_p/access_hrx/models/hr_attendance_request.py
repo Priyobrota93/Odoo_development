@@ -2,6 +2,7 @@ from odoo import models, fields, api
 from odoo.exceptions import ValidationError
 from datetime import datetime
 import psycopg2
+from .pg_connection import get_pg_access, get_pg_connection
 
 class HrAttendanceRequest(models.Model):
     _name = "hr.attendance.request"
@@ -21,30 +22,20 @@ class HrAttendanceRequest(models.Model):
     create_date = fields.Datetime(string='Creation Date', default=fields.Datetime.now)
     write_date = fields.Datetime(string='Last Modification Date', default=fields.Datetime.now)
 
-
     @api.model
     def transfer_data_from_postgres(self):
-        pg_access = self.env['hr_mobile_access_input'].search([], order='id desc', limit=1)
+        pg_access = get_pg_access(self.env)
         if not pg_access:
-            print("No PostgreSQL access details found.")
+            print("Failed to get PostgreSQL access.")
             return
 
-        PG_HOST = pg_access.pg_db_host
-        PG_DB = pg_access.pg_db_name
-        PG_USER = pg_access.pg_db_user
-        PG_PASSWORD = pg_access.pg_db_password
+        conn = get_pg_connection(pg_access)
+        if not conn:
+            print("Failed to connect to PostgreSQL.")
+            return
 
-        conn = None
-        cursor = None
+        cursor = conn.cursor()
         try:
-
-            conn = psycopg2.connect(
-                host=PG_HOST,
-                database=PG_DB,
-                user=PG_USER,
-                password=PG_PASSWORD
-            )
-            cursor = conn.cursor()
             query = "SELECT * FROM hrx_attendance_request"
             cursor.execute(query)
             records = cursor.fetchall()
@@ -127,28 +118,19 @@ class HrAttendanceRequest(models.Model):
 
     @api.model
     def update_attendance_status(self):
-        pg_access = self.env['hr_mobile_access_input'].search([], order='id desc', limit=1)
+        pg_access = get_pg_access(self.env)
         if not pg_access:
-            print("No PostgreSQL access details found.")
+            print("Failed to get PostgreSQL access.")
             return
 
-        PG_HOST = pg_access.pg_db_host
-        PG_DB = pg_access.pg_db_name
-        PG_USER = pg_access.pg_db_user
-        PG_PASSWORD = pg_access.pg_db_password
+        conn = get_pg_connection(pg_access)
+        if not conn:
+            print("Failed to connect to PostgreSQL.")
+            return
 
-        conn = None
-        cursor = None
+        cursor = conn.cursor()
         try:
-            conn = psycopg2.connect(
-                host=PG_HOST,
-                database=PG_DB,
-                user=PG_USER,
-                password=PG_PASSWORD
-            )
             conn.autocommit = True
-            cursor = conn.cursor()
-
             attendance_records = self.search([])
             for record in attendance_records:
                 cursor.execute("""
@@ -179,4 +161,3 @@ class HrAttendanceRequest(models.Model):
 
     def action_rejected(self):
         self.write({'status': 'rejected'})
-
