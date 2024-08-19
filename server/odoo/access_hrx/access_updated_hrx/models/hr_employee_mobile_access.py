@@ -1,6 +1,5 @@
 from odoo import fields, models, api
 import psycopg2
-from .pg_connection import get_pg_access, get_pg_connection
 
 class TestPortalAccess(models.Model):
     _inherit = 'hr.employee'
