@@ -7,4 +7,4 @@ access_updated_hrx.access_hr_mobile_access_input,access_hr_mobile_access_input,a
 
 access_hr_attendance_request,Access HR Attendance Request,model_hr_attendance_request,base.group_user,1,1,1,1
 
-access_hr_expense_inherit,Access HR Expense Inherit,model_hr_expense,base.group_user,1,1,1,1
+ 
