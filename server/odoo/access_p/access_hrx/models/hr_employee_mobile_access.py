@@ -6,13 +6,96 @@ class TestPortalAccess(models.Model):
     _inherit = 'hr.employee'
 
     mobile_access = fields.Boolean(string='Mobile Access', default=False)
-    # password = fields.Char(string='Password')
+    password = fields.Char(string='Password')
 
     @api.model
     def action_open_view_employee_list_my(self):
         action = self.env.ref('hr.open_view_employee_list_my').read()[0]
         action['domain'] = [('mobile_access', '=', True)]
         return action
+
+
+    @api.model
+    def integrate_mobile_access(self):
+        pg_access = get_pg_access(self.env)
+        if not pg_access:
+            print("Failed to get PostgreSQL access.")
+            return
+
+        conn = get_pg_connection(pg_access)
+        if not conn:
+            print("Failed to connect to PostgreSQL.")
+            return
+
+        cursor = conn.cursor()
+        try:
+            conn.autocommit = True
+
+            NEW_TABLE = 'hrx_employee'
+
+            create_table_query = f"""
+            CREATE TABLE IF NOT EXISTS {NEW_TABLE} (
+                id SERIAL PRIMARY KEY,
+                employee_id INTEGER UNIQUE,
+                name VARCHAR(255),
+                work_phone VARCHAR(50),
+                work_email VARCHAR(255),
+                job_title VARCHAR(255),
+                create_date TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+                write_date TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+                password VARCHAR(255)
+            )
+            """
+            cursor.execute(create_table_query)
+            print(f"Table {NEW_TABLE} created successfully.")
+
+            employees = self.search([('mobile_access', '=', True)])
+            if not employees:
+                print("No employees found with mobile access.")
+            else:
+                print(f"Found {len(employees)} employees with mobile access.")
+
+            for employee in employees:
+                cursor.execute("""
+                    SELECT 1 FROM hrx_employee WHERE employee_id = %s
+                """, (employee.id,))
+                if cursor.fetchone():
+                    print(f"Record with employee_id {employee.id} already exists. Skipping.")
+                    continue
+
+                #password = employee.password if hasattr(employee, 'password') else None
+
+                cursor.execute("""
+                    INSERT INTO hrx_employee (
+                        employee_id, name,
+                        work_phone, work_email, job_title, create_date, write_date
+                    ) VALUES (%s, %s, %s, %s, %s, %s, %s)
+                """, (
+                    employee.id,
+                    employee.name,
+                    employee.work_phone,
+                    employee.work_email,
+                    employee.job_title,
+                    employee.create_date,
+                    employee.write_date,
+                ))
+                print(f"Inserted employee_id {employee.id} successfully.")
+
+            print("Integration of mobile access data completed successfully.")
+
+        except psycopg2.Error as e:
+            print(f"Error: {e}")
+        finally:
+            if cursor:
+                cursor.close()
+            if conn:
+                conn.close()
+                print("PostgreSQL connection closed.")
+
+ 
+
+
+
 
     # @api.model
     # def transfer_mobile_access_employees(self):
@@ -148,84 +231,7 @@ class TestPortalAccess(models.Model):
 
 
 
-    @api.model
-    def integrate_mobile_access(self):
-        pg_access = get_pg_access(self.env)
-        if not pg_access:
-            print("Failed to get PostgreSQL access.")
-            return
-
-        conn = get_pg_connection(pg_access)
-        if not conn:
-            print("Failed to connect to PostgreSQL.")
-            return
-
-        cursor = conn.cursor()
-        try:
-            conn.autocommit = True
-
-            NEW_TABLE = 'hrx_employee'
-
-            create_table_query = f"""
-            CREATE TABLE IF NOT EXISTS {NEW_TABLE} (
-                id SERIAL PRIMARY KEY,
-                employee_id INTEGER UNIQUE,
-                name VARCHAR(255),
-                work_phone VARCHAR(50),
-                work_email VARCHAR(255),
-                job_title VARCHAR(255),
-                create_date TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-                write_date TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-                password VARCHAR(255)
-            )
-            """
-            cursor.execute(create_table_query)
-            print(f"Table {NEW_TABLE} created successfully.")
-
-            employees = self.search([('mobile_access', '=', True)])
-            if not employees:
-                print("No employees found with mobile access.")
-            else:
-                print(f"Found {len(employees)} employees with mobile access.")
-
-            for employee in employees:
-                cursor.execute("""
-                    SELECT 1 FROM hrx_employee WHERE employee_id = %s
-                """, (employee.id,))
-                if cursor.fetchone():
-                    print(f"Record with employee_id {employee.id} already exists. Skipping.")
-                    continue
-
-                #password = employee.password if hasattr(employee, 'password') else None
-
-                cursor.execute("""
-                    INSERT INTO hrx_employee (
-                        employee_id, name,
-                        work_phone, work_email, job_title, create_date, write_date
-                    ) VALUES (%s, %s, %s, %s, %s, %s, %s)
-                """, (
-                    employee.id,
-                    employee.name,
-                    employee.work_phone,
-                    employee.work_email,
-                    employee.job_title,
-                    employee.create_date,
-                    employee.write_date,
-                ))
-                print(f"Inserted employee_id {employee.id} successfully.")
-
-            print("Integration of mobile access data completed successfully.")
-
-        except psycopg2.Error as e:
-            print(f"Error: {e}")
-        finally:
-            if cursor:
-                cursor.close()
-            if conn:
-                conn.close()
-                print("PostgreSQL connection closed.")
-
- 
+    
 
     # @api.model
     # def integrate_mobile_access_attendance(self):

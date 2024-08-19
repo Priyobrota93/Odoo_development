@@ -1,0 +1,54 @@
+<!-- views/attendance_request_view.xml -->
+<odoo>
+    <record id="view_hr_attendance_request_tree" model="ir.ui.view">
+        <field name="name">hr.attendance.request.tree</field>
+        <field name="model">hr.attendance.request</field>
+        <field name="arch" type="xml">
+            <tree string="Attendance Requests">
+                <field name="employee_id"/>
+                <field name="request_date"/>
+                <field name="status"/>
+                <field name="reason"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_hr_attendance_request_form" model="ir.ui.view">
+        <field name="name">hr.attendance.request.form</field>
+        <field name="model">hr.attendance.request</field>
+        <field name="arch" type="xml">
+            <form string="Attendance Request">
+                <header >
+                 <div style="display: flex; justify-content: space-between; align-items: center; ">
+                    <div>
+                        <button name="action_pending" string="Pending" type="object" class="oe_highlight" style="margin-right:10px "/>
+                        <button name="action_approved" string="Approved" type="object" class="oe_highlight" style="margin-right:10px "/>
+                        <button name="action_rejected" string="Rejected" type="object" class="oe_highlight" style="margin-right:10px "/>
+                    </div>
+                    <div class="oe_title" >
+                        <h1>
+                            <field name="status" widget="statusbar" statusbar_visible="pending,approved,rejected" options="{'clickable': 'true'}"/>
+                        </h1>
+                    </div>
+                </div>
+                    
+                </header>
+
+                <sheet>
+
+                    <group>
+                        <field name="employee_id"/>
+                        <field name="attn_req_id"/>
+                        <field name="request_date"/>
+                        <field name="status"/>
+                        <field name="reason"/>
+                        <field name="check_in"/>
+                        <field name="check_out"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+
+</odoo>

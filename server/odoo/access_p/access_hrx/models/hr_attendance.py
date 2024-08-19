@@ -4,6 +4,8 @@ import psycopg2
 from psycopg2 import connect, OperationalError, Error as PsycopgError
 from .pg_connection import get_pg_access, get_pg_connection
 import logging
+from contextlib import closing
+import traceback
 
 _logger = logging.getLogger(__name__)
 
@@ -13,114 +15,105 @@ class HrAttendance(models.Model):
     attn_id = fields.Integer(string="Attendance ID", required=True, index=True, copy=False)
     attn_req_id = fields.Integer(string="Attendance Request ID")
     update = fields.Boolean(string="Update", default=False)
+    mobile_create_date = fields.Datetime(string="Mobile Create Date")
+    mobile_write_date = fields.Datetime(string="Mobile Write Date")
 
     @api.model
     def transfer_mobile_attendance_data(self):
         pg_access = get_pg_access(self.env)
         if not pg_access:
-            _logger.info("Failed to get PostgreSQL access.")
+            _logger.error("Failed to get PostgreSQL access.")
             return
 
-        conn = get_pg_connection(pg_access)
-        if not conn:
-            _logger.info("Failed to connect to PostgreSQL.")
-            return
+        with closing(get_pg_connection(pg_access)) as conn:
+            if not conn:
+                _logger.error("Failed to connect to PostgreSQL.")
+                return
 
-        odoo_cursor = self.env.cr  
-        mobile_cursor = None
-        try:
-            mobile_cursor = conn.cursor()
-            _logger.info("Fetching the latest create_date")
-            latest_create_date = self.get_latest_create_date(odoo_cursor)
-            latest_write_date = self.get_latest_write_date(odoo_cursor)
-            _logger.info(f"Latest create_date from sync_status: {latest_create_date}")
-            _logger.info(f"Latest write_date from sync_status: {latest_write_date}")
+            with closing(conn.cursor()) as mobile_cursor:
+                try:
+                    latest_create_date = self.get_latest_create_date()
+                    latest_write_date = self.get_latest_write_date()
+                    _logger.info(f"Latest create_date from sync_status: {latest_create_date}")
+                    _logger.info(f"Latest write_date from sync_status: {latest_write_date}")
 
-            if latest_create_date:
-                query = """
-                    SELECT *
-                    FROM hrx_attendance
-                    WHERE create_date > %s OR (update = TRUE)
-                """
-                mobile_cursor.execute(query, (latest_create_date,))
-            else:
-                query = "SELECT * FROM hrx_attendance"
-                mobile_cursor.execute(query)
+                    query = """
+                        SELECT *
+                        FROM hrx_attendance
+                        WHERE create_date > %s OR (write_date > %s AND update is TRUE)
+                        ORDER BY create_date ASC
+                    """
+                    mobile_cursor.execute(query, (latest_create_date,))
 
-            records = mobile_cursor.fetchall()
+                    records = mobile_cursor.fetchall()
+                    _logger.info(f"Fetched {len(records)} records from mobile database")
 
-            for record in records:
-                id = record[0]
-                employee_id = record[1]
-                in_latitude = record[2]
-                in_longitude = record[3]
-                out_latitude = record[4]
-                out_longitude = record[5]
-                check_in = record[6]
-                check_out = record[7]
-                create_date = record[8]
-                write_date = record[9]
-                worked_hours = record[10]
-                attn_id = record[11]
-                update = record[12]
+                    for record in records:
+                        id, employee_id, in_latitude, in_longitude, out_latitude, out_longitude, check_in, check_out, create_date, write_date, _, attn_id, update = record
 
-                existing_attendance = self.get_existing_attendance(odoo_cursor, attn_id)
-                if existing_attendance:
-                        odoo_cursor.execute("""
-                            UPDATE hr_attendance
-                            SET out_latitude = %s,
-                                out_longitude = %s,
-                                check_out = %s,
-                                write_date = %s,
-                                worked_hours = %s,
-                                update = %s
-                            WHERE id = %s
-                        """, (
-                            out_latitude,
-                            out_longitude,
-                            check_out,
-                            write_date,
-                            worked_hours,
-                            False,  # update flag set to False
-                            existing_attendance,
-                        ))
-                        _logger.info(f"Updated attendance record id {id} successfully.")
-                        # max_write_date = self.get_max_write_date(mobile_cursor)
+                        try:
+                            worked_hours = self.calculate_worked_hours(check_in, check_out)
 
-                        mobile_cursor.execute("UPDATE hrx_attendance SET update = FALSE WHERE attn_id = %s", (attn_id,))
-                else:
-                    self.env['hr.attendance'].create({
-                        'employee_id': employee_id,
-                        'in_latitude': in_latitude or 0.0,
-                        'in_longitude': in_longitude or 0.0,
-                        'out_latitude': out_latitude or 0.0,
-                        'out_longitude': out_longitude or 0.0,
-                        'check_in': check_in,
-                        'check_out': check_out or None,
-                        'create_date': create_date,
-                        'write_date': write_date,
-                        'worked_hours': worked_hours or 0.0,
-                        'attn_id': attn_id,
-                        'update': update,  
-                    })
+                            existing_attendance = self.search([('attn_id', '=', attn_id)], limit=1)
+                            if existing_attendance:
+                                if update:
+                                    existing_attendance.write({
+                                        'out_latitude': out_latitude or 0.0,
+                                        'out_longitude': out_longitude or 0.0,
+                                        'check_out': check_out,
+                                        'write_date': write_date,
+                                        'worked_hours': worked_hours,
+                                        'update': False,
+                                        'mobile_write_date': write_date,
+                                    })
+                                    _logger.info(f"Updated attendance record id {id} successfully.")
+                            else:
+                                self.create({
+                                    'employee_id': employee_id,
+                                    'in_latitude': in_latitude or 0.0,
+                                    'in_longitude': in_longitude or 0.0,
+                                    'out_latitude': out_latitude or 0.0,
+                                    'out_longitude': out_longitude or 0.0,
+                                    'check_in': check_in,
+                                    'check_out': check_out or None,
+                                    'create_date': create_date,
+                                    'write_date': write_date,
+                                    'worked_hours': worked_hours,
+                                    'attn_id': attn_id,
+                                    'update': False,
+                                    'mobile_create_date': create_date,
+                                    'mobile_write_date': write_date,
+                                })
+                                _logger.info(f"Created new attendance record for attn_id {attn_id}")
 
-            max_create_date = self.get_max_create_date(mobile_cursor)
-            max_write_date = self.get_max_write_date(mobile_cursor)
+                            mobile_cursor.execute("UPDATE hrx_attendance SET update = FALSE WHERE attn_id = %s", (attn_id,))
+                            conn.commit()
 
-            if max_create_date or max_write_date:
-                self.set_latest_dates(odoo_cursor, max_create_date, max_write_date)
+                            self.env.cr.commit()
+                        except Exception as e:
+                            _logger.error(f"Error processing record {id}: {e}\n{traceback.format_exc()}")
+                            self.env.cr.rollback()
+                            conn.rollback()
 
-            self.env.cr.commit()
-        except psycopg2.Error as e:
-            _logger.error(f"PostgreSQL error: {e}")
-        
-        finally:
-            if mobile_cursor:
-                conn.commit()  
-                mobile_cursor.close()
-            if conn:
-                conn.close()
-                _logger.info("PostgreSQL connection closed.")
+                            max_create_date = self.get_max_create_date(mobile_cursor)
+                            max_write_date = self.get_max_write_date(mobile_cursor)
+
+                            if max_create_date or max_write_date:
+                                self.set_latest_dates(max_create_date, max_write_date)
+
+                            self.env.cr.commit()
+
+                except psycopg2.Error as e:
+                    _logger.error(f"PostgreSQL error: {e}\n{traceback.format_exc()}")
+                    self.env.cr.rollback()
+                    conn.rollback()
+
+    @api.model
+    def calculate_worked_hours(self, check_in, check_out):
+        if check_in and check_out:
+            delta = check_out - check_in
+            return delta.total_seconds() / 3600
+        return 0.0
 
     @api.model
     def get_latest_create_date(self, odoo_cursor):
@@ -174,40 +167,3 @@ class HrAttendance(models.Model):
             """, (new_latest_create_date, new_latest_write_date))
         except Exception as e:
             _logger.error(f"Error updating latest dates: {e}")
-    
-    @api.model
-    def get_existing_attendance(self, odoo_cursor, attn_id):
-        try:
-            odoo_cursor.execute("SELECT id FROM hr_attendance WHERE attn_id = %s LIMIT 1", (attn_id,))
-            result = odoo_cursor.fetchone()
-            return result[0] if result else None
-        except Exception as e:
-            _logger.error(f"Error fetching existing attendance: {e}")
-            return None
-
-
-# self.env['hr.attendance'].create({
-                #     'employee_id': employee_id,
-                #     'in_latitude': in_latitude or 0.0,
-                #     'in_longitude': in_longitude or 0.0,
-                #     'out_latitude': out_latitude or 0.0,
-                #     'out_longitude': out_longitude or 0.0,
-                #     'check_in': check_in,
-                #     'check_out': check_out,
-                #     'create_date': create_date,
-                #     'write_date': write_date,
-                #     'worked_hours': worked_hours or 0.0,
-                #     'attn_id': attn_id,
-                #     'update': update,  
-                # })
-                # print(f"Inserted attendance record id {id} successfully.")
-
-
- # print(f"Inserted attendance record id {id} successfully.")
-                    # # Reset the update flag in the mobile database
-                    # mobile_cursor.execute("UPDATE hrx_attendance SET update = FALSE WHERE attn_id = %s", (attn_id,))
-
-            # # Update the latest create_date in sync_status
-            # max_create_date = self.get_max_create_date(mobile_cursor)
-            # if max_create_date:
-            #     self.set_latest_create_date(odoo_cursor, max_create_date)

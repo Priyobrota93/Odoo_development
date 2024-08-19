@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_employee_form" model="ir.ui.view">
+        <field name="name">hr.employee.form.inherit</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.view_employee_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='hr_settings']//field[@name='user_id']" position="after">
+                <field name="mobile_access"/>
+            </xpath>
+        </field>
+    </record>
+
+ 
+
+</odoo>
+
+ <!-- <record id="view_hr_attendance_form_inherit" model="ir.ui.view">
+        <field name="name">hr.attendance.form.inherit</field>
+        <field name="model">hr.attendance</field>
+        <field name="inherit_id" ref="hr_attendance.hr_attendance_view_form"/>
+        <field name="arch" type="xml">
+
+            <xpath expr="//form" position="after">
+             <header>
+                <button name="action_pending" string="Pending" type="object" class="oe_highlight"/>
+                <button name="action_approved" string="Approved" type="object" class="oe_highlight"/>
+                <button name="action_rejected" string="Rejected" type="object" class="oe_highlight"/>
+            </header>
+            </xpath>
+
+            <xpath expr="//field[@name='check_out']" position="after">
+                <field name="status"/>
+            </xpath>
+        </field>
+    </record> -->
+
+    <!-- <record id="view_hr_attendance_form_inherit" model="ir.ui.view">
+        <field name="name">hr.attendance.form.inherit</field>
+        <field name="model">hr.attendance</field>
+        <field name="inherit_id" ref="hr_attendance.view_attendance_form"/>
+        <field name="arch" type="xml">
+            <header>
+                <button name="action_pending" type="object" string="Pending" class="oe_highlight"/>
+                <button name="action_approved" type="object" string="Approved" class="oe_highlight"/>
+                <button name="action_rejected" type="object" string="Rejected" class="oe_highlight"/>
+            </header>
+             <xpath expr="//field[@name='check_out']" position="after">
+                <field name="status"/>
+            </xpath>
+        </field>
+    </record> -->

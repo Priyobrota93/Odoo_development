@@ -6,7 +6,7 @@ odoo_conn_info = {
     'dbname': 'new_db',
     'user': 'openpg',
     'password': 'openpgpwd',
-    'host': 'localhost',
+    'host': '192.168.42.28',
     'port': '5432'
 }
 

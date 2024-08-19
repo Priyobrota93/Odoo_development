@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_test_input_form" model="ir.ui.view">
+        <field name="name">test.input.form</field>
+        <field name="model">hr_mobile_access_input</field>
+        <field name="arch" type="xml">
+            <form string="Input Credentials Form">
+                <group>
+                    <field name="pg_db_host"/>
+                    <field name="pg_db_name"/>
+                    <field name="pg_db_user"/>
+                    <field name="pg_db_password"/>
+                </group>
+            </form>
+        </field>
+    </record>
+</odoo>
+
+
+
+
