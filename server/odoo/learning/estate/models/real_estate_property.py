@@ -9,7 +9,7 @@ class RealEstateProperty(models.Model):
     name= fields.Char(string="Name", default="House", required=True)
     description = fields.Text(string= "Description")
     postcode = fields.Char(string="Postcode")
-    date_availability = fields.Date(string="Dateavailability")
+    date_availability = fields.Date(string="Date Availability")
     expected_price = fields.Float(string="Expected Price", required=True)
     selling_price = fields.Float(string="Selling Price")
     bedrooms = fields.Integer (string="Number of bedrooms")

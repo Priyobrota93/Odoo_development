@@ -1,0 +1,5 @@
+{
+    "python.analysis.extraPaths": [
+        "./python/Lib/site-packages/passlib/handlers"
+    ]
+}

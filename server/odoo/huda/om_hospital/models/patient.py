@@ -1,5 +1,6 @@
 from odoo import api, fields, models, _
 from odoo.exceptions import ValidationError
+from datetime import date
 
 
 class HospitalPatient(models.Model):
@@ -8,7 +9,9 @@ class HospitalPatient(models.Model):
     _inherit = "mail.thread"
 
     name = fields.Char(string="Name", required=True, tracking=True)
-    age = fields.Integer(string="Age", tracking=True)
+    image = fields.Image(string="Profile Image", max_width=128, max_height=128)
+    date_of_birth = fields.Date(String ="DOB")
+    age = fields.Integer(string="Age", compute="_compute_age", inverse="_inverse_age", store=True, tracking=True)
     is_child = fields.Boolean(string="Is Child ?", tracking=True)
     notes = fields.Text(string="Notes", tracking=True)
     gender = fields.Selection(
@@ -24,6 +27,7 @@ class HospitalPatient(models.Model):
     ref =fields.Char(string="Reference", default=lambda self: _('New'))
 
     doctor_id=fields.Many2one('hospital.doctor',string="Doctor")
+    
 
     @api.depends("name")
     def _compute_capitalized_name(self):
@@ -31,6 +35,17 @@ class HospitalPatient(models.Model):
             self.capitalized_name = self.name.upper()
         else:
             self.capitalized_name = ""
+
+
+    @api.depends("date_of_birth")
+    def _compute_age(self):
+        today = date.today()
+        for record in self:
+            if record.date_of_birth:
+                birth_date = record.date_of_birth
+                record.age = today.year - birth_date.year - ((today.month, today.day) < (birth_date.month, birth_date.day))
+            else:
+                record.age = 0
 
     @api.onchange("age")
     def _onchange_age(self):
@@ -51,7 +66,4 @@ class HospitalPatient(models.Model):
             vals['ref'] = self.env['ir.sequence'].next_by_code('hospital.patient')
         result = super(HospitalPatient, self).create(vals_list)
         return result
-        # print(vals_list)
-        # for vals in vals_list:
-            # vals['gender'] = 'Female'
-        # return super(HospitalPatient, self).create(vals_list)
+        

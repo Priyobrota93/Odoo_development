@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="action_hr_attendance_request_view" model="ir.actions.act_window">
+        <field name="name">Attendance Requests</field>
+        <field name="res_model">hr.mobile.attendance.request</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="access_mobile_hrx.view_hr_attendance_request_tree"/>
+        
+    </record>
+
+
+
+    <menuitem id="menu_hr_attendance_view_request" name="Attendance Requests" parent="hr_attendance.menu_hr_attendance_root" sequence="5" action="action_hr_attendance_request_view"/>
+
+    
+  
+</odoo>

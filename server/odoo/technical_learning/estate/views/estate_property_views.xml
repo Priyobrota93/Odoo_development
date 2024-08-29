@@ -1,0 +1,60 @@
+<odoo>
+    <record id="real_estate_tree_view" model="ir.ui.view">
+        <field name="name">Real Estate Tree View</field>
+        <field name="model">real.estate</field>
+        <field name="arch" type="xml">
+            <tree string="Real Estate">
+                <!-- define the tree view columns here -->
+                <field name="name"/>
+                <!-- add more fields as needed -->
+            </tree>
+        </field>
+    </record>
+
+    <record id="real_estate_form_view" model="ir.ui.view">
+        <field name="name">Real Estate Form View</field>
+        <field name="model">real.estate</field>
+        <field name="arch" type="xml">
+            <form string="Real Estate">
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name" class="oe_edit_only" />
+                        <h1>
+                            <field name="name" />
+                        </h1>
+                        <div class="oe_right">
+                            <field name="image" widget="image" class="oe_avatar"
+                                   options="{'preview_image': 'image', 'size': [128, 128]}" />
+                        </div>
+                    </div>
+                    <group>
+                        <field name="description"/>
+                        <field name="postcode"/>
+                        <field name="date_availability"/>
+                        <field name="expected_price"/>
+                        <field name="selling_price"/>
+                        <field name="bedrooms"/>
+                        <field name="living_area"/>
+                        <field name="facades"/>
+                        <field name="garage"/>
+                        <field name="garden"/>
+                        <field name="garden_orientation"/>
+                        <field name="related_image" widget="image" class="oe_avatar"
+                               options="{'preview_image': 'image', 'size': [128, 128]}" />
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="test_record" model="ir.actions.act_window">
+        <field name="name">Test</field>
+        <field name="res_model">real.estate</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="real_estate_tree_view"/>
+        <field name="view_id" ref="real_estate_form_view"/>
+        <field name="help" type="html">
+            <p>Create new</p>
+        </field>
+    </record>
+</odoo>

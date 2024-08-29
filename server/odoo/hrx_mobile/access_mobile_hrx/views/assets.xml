@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="assets_backend" name="access_mobile_hrx assets" inherit_id="web.assets_frontend" priority="10">
+        <xpath expr="." position="inside">
+            <link rel="stylesheet" type="text/css" href="/hrx_mobile/access_mobile_hrx/static/src/css/custom_styles.css"/>
+        </xpath>
+    </template>
+</odoo>

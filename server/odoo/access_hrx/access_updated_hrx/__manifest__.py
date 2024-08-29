@@ -6,7 +6,7 @@
     'data': [
         'views/hr_menuitem.xml',
         'views/hr_mobile_access_portal.xml',
-        'views/hr_input_form_view.xml',
+        # 'views/hr_input_form_view.xml',
         # 'views/attendance_request_access.xml',
         'views/attendance_request_view.xml',
         'views/attendance_request.xml',
@@ -15,7 +15,7 @@
     ],
     'installable': True,
     'auto_install': False,
-    'application': False,
+    'application': True,
 }
 
 

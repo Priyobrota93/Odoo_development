@@ -1,0 +1,4 @@
+.custom_button {
+    /* width: 100% !important; */
+    white-space: nowrap; /* Prevents text from wrapping */
+}

@@ -6,7 +6,7 @@
         <field name="res_model">hr.attendance.request</field>
         <field name="view_mode">tree,form</field>
         <field name="view_id" ref="access_updated_hrx.view_hr_attendance_request_tree"/>
-        <field name="domain">[('attn_req_id', '!=', False)]</field>
+        
     </record>
 
 

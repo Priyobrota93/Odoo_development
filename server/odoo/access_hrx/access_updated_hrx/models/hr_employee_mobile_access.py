@@ -1,5 +1,4 @@
 from odoo import fields, models, api
-import psycopg2
 
 class TestPortalAccess(models.Model):
     _inherit = 'hr.employee'
@@ -12,7 +11,3 @@ class TestPortalAccess(models.Model):
         action = self.env.ref('hr.open_view_employee_list_my').read()[0]
         action['domain'] = [('mobile_access', '=', True)]
         return action
-
-
-   
- 
